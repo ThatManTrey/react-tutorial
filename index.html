@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
-<!--implementing time travel-->
+<!--wrapping up-->
 <head>
 	<meta CHARSET="UTF-8"/>
-	<!--link href="reset_myers.css" rel="stylesheet"-->
+	<link href="reset_myers.css" rel="stylesheet">
 
-	<!--style>
-		button		{}
-	</style-->
+	<style>
+		body	{padding: 1em;}
+		button	{width: 50px; height: 50px; padding: 1em; margin: 0em;}
+		.warp	{width: 150px; height: 40px;}
+	</style>
 
 	<!--https://raw.githubusercontent.com/reactjs/reactjs.org/master/static/html/single-file-example.html-->
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
@@ -67,12 +69,13 @@
 					history: [{
 						squares: Array(9).fill(null),
 					}],
+					stepNumber: 0,
 					xIsNext: true
 				};
 			}
 
 			handleClick(i) {
-				const history = this.state.history;
+				const history = this.state.history.slice(0, this.state.stepNumber + 1);
 				const current = history[history.length - 1];
 				const squares = current.squares.slice();
 				if (calculateWinner(squares) || squares[i]) {
@@ -83,13 +86,21 @@
 					history: history.concat([{
 						squares: squares
 					}]),
+					stepNumber: history.length,
 					xIsNext: !this.state.xIsNext,
 				});
 			}
 
+			jumpTo(step) {
+				this.setState({
+					stepNumber: step,
+					xIsNext: (step % 2) === 0,
+				});
+			}
+			
 			render() {
 				const history = this.state.history;
-				const current = history[history.length - 1];
+				const current = history[this.state.stepNumber];
 				const winner = calculateWinner(current.squares);
 
 				const moves = history.map((step, move) => {
@@ -97,8 +108,8 @@
 						'Go to move #' + move :
 						'Go to game start';
 					return (
-						<li>
-							<button onClick={() => this.jumpTo(move)}>{desc}</button>
+						<li key={move}>
+							<button class="warp" onClick={() => this.jumpTo(move)}>{desc}</button>
 						</li>
 					);
 				});
